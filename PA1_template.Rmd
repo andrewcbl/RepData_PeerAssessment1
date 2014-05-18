@@ -2,19 +2,87 @@
 
 
 ## Loading and preprocessing the data
+```{r, echo=TRUE}
+activity = read.csv("activity.csv")
+activity$date <- as.Date(activity$date)
 
+activityDaily <- as.data.frame(table(activity$date))
+colnames(activityDaily) <- c("date", "steps")
+activityDaily$date <- as.Date(activityDaily$date)
 
+for (i in 1:nrow(activityDaily)) {
+    curActivity <- subset(activity, activity$date == activityDaily$date[i])
+    activityDaily$steps[i] <- sum(curActivity$steps, na.rm=TRUE)
+}
+    
+activity5min <- as.data.frame(table(activity$interval))
+colnames(activity5min) <- c("interval", "steps")
+
+for (i in 1:nrow(activity5min)) {
+  curActivity = subset(activity, activity$interval == activity5min$interval[i])
+  activity5min$steps[i] <- mean(curActivity$steps, na.rm=TRUE)
+}
+```
 
 ## What is mean total number of steps taken per day?
+### Make a histogram of the total number of steps taken each day
+```{r, echo=TRUE}
+  barplot(activityDaily$steps, names.arg = activityDaily$date, xlab = "Date", ylab = "Steps")
+```
 
-
+### Calculate and report the mean and median total number of steps taken per day
+```{r, echo=TRUE}
+    mean(activityDaily$steps, na.rm=TRUE)
+    median(activityDaily$steps, na.rm=TRUE)
+```
 
 ## What is the average daily activity pattern?
+### Time series plot (i.e. type = "l") of the 5-minute interval (x-axis)
+```{r, echo=TRUE}
+plot(activity5min$steps, type="l")
+```
 
-
+### Which 5-minute interval, on average across all the days in the dataset, contains the maximum number of steps?
+```{r, echo=TRUE}
+activity5min$interval[which.max(activity5min$steps)]
+```
 
 ## Imputing missing values
+### Calculate and report the total number of missing values in the dataset
+```{r, echo=TRUE}
+sum(is.na(activity$steps))
+```
 
+### Impute the dataset
+```{r, echo=TRUE}
+activityImputed <- activity
+activityImputed$date <- as.Date(activityImputed$date)
+naIdx <- is.na(activity$steps)
+activityImputed$steps[naIdx] <- mean(activity$steps, na.rm=T)
 
+activityDailyImp <- as.data.frame(table(activityImputed$date))
 
+colnames(activityDailyImp) <- c("date", "steps")
+
+activityDailyImp$date <- as.Date(activityDailyImp$date)
+
+for (i in 1:nrow(activityDailyImp)) {
+    curActivity <- subset(activityImputed, activityImputed$date == activityDailyImp$date[i])
+    activityDailyImp$steps[i] <- sum(curActivity$steps, na.rm=TRUE)
+}
+
+barplot(activityDailyImp$steps, names.arg = activityDailyImp$date, xlab = "Date", ylab = "Steps")
+
+```
+
+###  Calculate and report the mean and median total number of steps taken per day.
+```{r, echo=TRUE}    
+    mean(activityDailyImp$steps, na.rm=TRUE)
+    median(activityDailyImp$steps, na.rm=TRUE)
+```
+    
 ## Are there differences in activity patterns between weekdays and weekends?
+```{r, echo=TRUE}
+
+
+```
